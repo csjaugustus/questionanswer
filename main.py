@@ -14,25 +14,21 @@ try:
 	with open("savedfile.json") as f:
 		saved_data = json.load(f)
 
-	if len(saved_data) > len(wordbank):
-		q_to_delete = []
-		for q in saved_data:
-			if q not in wordbank:
-				q_to_delete.append(q)
-		for q in q_to_delete:
-			del saved_data[q]
-		print(f"Saved data contains questions that were removed from word bank. Cleared the following:\n{'\n'.join(q_to_delete)}.")
-
-	elif len(saved_data) < len(wordbank):
-		q_to_add = []
+	if len(saved_data) != len(wordbank):
+		new_dict = {}
 		for q in wordbank:
-			if q not in saved_data:
-				q_to_add.append(q)
-		for q in q_to_add:
-			saved_data[q] = 0
-		print(f"New questions found in word bank. Added the following to saved data:\n{'\n'.join(q_to_add)}.")
+			if q in saved_data:
+				new_dict[q] = saved_data[q]
+			else:
+				new_dict[q] = 0
+		diff = set(saved_data) ^ set(new_dict)
+		print(f"Differences between new word bank and saved data:\n{diff}\n")
+		saved_data = new_dict
 
-	weighted = True
+	if sum(saved_data.values())==0:
+		weighted = False
+	else:
+		weighted = True
 
 except FileNotFoundError:
 	saved_data = {}
@@ -45,33 +41,57 @@ except FileNotFoundError:
 #game
 while True:
 	game_wordbank = [q for q in wordbank]
+	total_q = len(game_wordbank)
+	streak = 0
 
 	if not weighted:
 		while game_wordbank:
+			print(f"Question {total_q-len(game_wordbank)+1}/{total_q}")
 			question = choice(game_wordbank)
-			game_wordbank.remove(question)
 			answer = wordbank[question]
 			user_input = input(question + "\n")
 			if user_input.lower() == answer.lower():
 				print("Correct!\n")
+				game_wordbank.remove(question)
+				streak += 1
+				if streak >= 3:
+					print(f"{streak} in a row!")
 			else:
 				print(f"Wrong! The answer was '{answer}'.\n")
 				saved_data[question] += 1
+				streak = 0
+
 		weighted = True
 
 	else: 
 		weights = [saved_data[q] for q in game_wordbank]
 		while game_wordbank:
+			print(f"Question {total_q-len(game_wordbank)+1}/{total_q}")
 			question = choices(game_wordbank, weights, k=1)[0]
-			game_wordbank.remove(question)
 			answer = wordbank[question]
 			user_input = input(question + "\n")
 			if user_input.lower() == answer.lower():
 				print("Correct!\n")
+				game_wordbank.remove(question)
+				if saved_data[question] >= 1:
+					saved_data[question] -= 1
+				streak += 1
+				if streak >= 3:
+					print(f"{streak} in a row!")
 			else:
 				print(f"Wrong! The answer was '{answer}'.\n")
-				saved_data[question] += 1
+				saved_data[question] += 10
+				streak = 0
+
 
 	with open("savedfile.json", "w") as f:
-		json.dump(saved_data, f)
+		json.dump(saved_data, f, indent=4)
+
+	stats = [(q, saved_data[q]) for q in saved_data]
+	stats.sort(key=lambda x:x[1], reverse=True)
+	with open("stats.txt", "w") as f:
+		for q,a in stats:
+			f.write(f"{q} Points: {a}\n")
+
+	input("Game Over. Enter to start another round.")
 
