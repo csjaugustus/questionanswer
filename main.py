@@ -1,8 +1,29 @@
 from random import choices, choice
 import json
+import os
 
-with open("wordbank.txt", encoding="utf-8") as f:
-	lines = [l.strip() for l in f]
+cwd = os.getcwd()
+path1 = os.path.join(cwd, "Saved Data Files")
+path2 = os.path.join(cwd, "Word Bank Files")
+path3 = os.path.join(cwd, "Stats Files")
+if not os.path.exists(path1):
+	os.mkdir(path1)
+if not os.path.exists(path2):
+	os.mkdir(path2)
+if not os.path.exists(path3):
+	os.mkdir(path3)
+
+filename = input("Name of word bank txt file (without file extension):\n")
+wordbank_file =  f"Word Bank Files\\{filename}.txt"
+saveddata_file = f"Saved Data Files\\{filename}.json"
+stats_file = f"Stats Files\\{filename}.txt"
+
+try:
+	with open(wordbank_file, encoding="utf-8") as f:
+		lines = [l.strip() for l in f]
+except FileNotFoundError:
+	print(f"No file named '{filename}.txt' in the word bank folder.")
+	exit()
 
 wordbank = {}
 for l in lines:
@@ -11,7 +32,7 @@ for l in lines:
 
 #load save file if any
 try:
-	with open("savedfile.json") as f:
+	with open(saveddata_file) as f:
 		saved_data = json.load(f)
 
 	if len(saved_data) != len(wordbank):
@@ -47,11 +68,17 @@ except FileNotFoundError:
 	saved_data = {}
 	for k in wordbank:
 		saved_data[k] = 1
-	with open("savedfile.json", "w") as f:
-		json.dump(saved_data, f)
+	with open(saveddata_file, "w") as f:
+		json.dump(saved_data, f, indent=4)
 	weighted = False
 
+if weighted:
+	message = "Saved data found."
+else:
+	message = "No saved data found."
 #game
+input(f"\n{message}\nEnter to start.")
+print("========== START ==========\n")
 while True:
 	game_wordbank = [q for q in wordbank]
 	total_q = len(game_wordbank)
@@ -101,12 +128,12 @@ while True:
 				streak = 0
 
 
-	with open("savedfile.json", "w") as f:
+	with open(saveddata_file, "w") as f:
 		json.dump(saved_data, f, indent=4)
 
 	stats = [(q, saved_data[q]) for q in saved_data]
 	stats.sort(key=lambda x:x[1], reverse=True)
-	with open("stats.txt", "w", encoding="utf-8") as f:
+	with open(stats_file, "w", encoding="utf-8") as f:
 		for q,p in stats:
 			f.write(f"Points: {p} {q} {wordbank[q]} \n")
 
