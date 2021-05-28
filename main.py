@@ -21,8 +21,21 @@ try:
 				new_dict[q] = saved_data[q]
 			else:
 				new_dict[q] = 1
-		diff = set(saved_data) ^ set(new_dict)
-		print(f"Differences between new word bank and saved data:\n{diff}\n")
+		diff = list(set(saved_data) ^ set(new_dict))
+		additions = []
+		removals = []
+		for x in diff:
+			if x in saved_data:
+				removals.append(x)
+			else:
+				additions.append(x)
+		if additions:
+			additions_str = "\n".join(x for x in additions)
+			print(f"The following additions were made:\n{additions_str}\n")
+		if removals:
+			removals_str = "\n".join(x for x in removals)
+			print(f"The following removals were made:\n{removals_str}\n")
+
 		saved_data = new_dict
 
 	if sum(saved_data.values())==len(saved_data):
@@ -94,8 +107,8 @@ while True:
 	stats = [(q, saved_data[q]) for q in saved_data]
 	stats.sort(key=lambda x:x[1], reverse=True)
 	with open("stats.txt", "w", encoding="utf-8") as f:
-		for q,a in stats:
-			f.write(f"{q} Points: {a}\n")
+		for q,p in stats:
+			f.write(f"Points: {p} {q} {wordbank[q]} \n")
 
 	input("Game Over. Enter to start another round.")
 
