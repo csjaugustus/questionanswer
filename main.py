@@ -20,12 +20,12 @@ try:
 			if q in saved_data:
 				new_dict[q] = saved_data[q]
 			else:
-				new_dict[q] = 0
+				new_dict[q] = 1
 		diff = set(saved_data) ^ set(new_dict)
 		print(f"Differences between new word bank and saved data:\n{diff}\n")
 		saved_data = new_dict
 
-	if sum(saved_data.values())==0:
+	if sum(saved_data.values())==len(saved_data):
 		weighted = False
 	else:
 		weighted = True
@@ -33,7 +33,7 @@ try:
 except FileNotFoundError:
 	saved_data = {}
 	for k in wordbank:
-		saved_data[k] = 0
+		saved_data[k] = 1
 	with open("savedfile.json", "w") as f:
 		json.dump(saved_data, f)
 	weighted = False
@@ -53,12 +53,14 @@ while True:
 			if user_input.lower() == answer.lower():
 				print("Correct!\n")
 				game_wordbank.remove(question)
+				if saved_data[question] >= 3:
+					saved_data[question] -= 2
 				streak += 1
 				if streak >= 3:
-					print(f"{streak} in a row!")
+					print(f"{streak} in a row!\n")
 			else:
 				print(f"Wrong! The answer was '{answer}'.\n")
-				saved_data[question] += 1
+				saved_data[question] += 10
 				streak = 0
 
 		weighted = True
@@ -72,12 +74,14 @@ while True:
 			user_input = input(question + "\n")
 			if user_input.lower() == answer.lower():
 				print("Correct!\n")
+				indx = game_wordbank.index(question)
 				game_wordbank.remove(question)
-				if saved_data[question] >= 1:
-					saved_data[question] -= 1
+				weights.pop(indx)
+				if saved_data[question] >= 3:
+					saved_data[question] -= 2
 				streak += 1
 				if streak >= 3:
-					print(f"{streak} in a row!")
+					print(f"{streak} in a row!\n")
 			else:
 				print(f"Wrong! The answer was '{answer}'.\n")
 				saved_data[question] += 10
@@ -89,7 +93,7 @@ while True:
 
 	stats = [(q, saved_data[q]) for q in saved_data]
 	stats.sort(key=lambda x:x[1], reverse=True)
-	with open("stats.txt", "w") as f:
+	with open("stats.txt", "w", encoding="utf-8") as f:
 		for q,a in stats:
 			f.write(f"{q} Points: {a}\n")
 
