@@ -13,7 +13,15 @@ if not os.path.exists(path2):
 if not os.path.exists(path3):
 	os.mkdir(path3)
 
-filename = input("Name of word bank txt file (without file extension):\n")
+if not os.listdir(path2):
+	print("No txt file found in word bank folder. Please add at least one.")
+	exit()
+else:
+	print("Files available:")
+	for f in os.listdir(path2):
+		print(f[:-4])
+
+filename = input("\nSelect a word bank:\n")
 wordbank_file =  f"Word Bank Files\\{filename}.txt"
 saveddata_file = f"Saved Data Files\\{filename}.json"
 stats_file = f"Stats Files\\{filename}.txt"
@@ -22,7 +30,7 @@ try:
 	with open(wordbank_file, encoding="utf-8") as f:
 		lines = [l.strip() for l in f]
 except FileNotFoundError:
-	print(f"No file named '{filename}.txt' in the word bank folder.")
+	print(f"No file named '{filename}.txt' in folder.")
 	exit()
 
 wordbank = {}
