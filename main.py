@@ -29,6 +29,7 @@ stats_file = f"Stats Files\\{filename}.txt"
 try:
 	with open(wordbank_file, encoding="utf-8") as f:
 		lines = [l.strip() for l in f]
+		lines = [l for l in lines if l]
 except FileNotFoundError:
 	print(f"No file named '{filename}.txt' in folder.")
 	exit()
