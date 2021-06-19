@@ -5,7 +5,3 @@ This program takes a txt file in which every line is written in "question;answer
 After every round, a stats file will be generated in the "Stats Files" to show how many points each question has.
 
 You can add any number of txt's in the "Word Bank Files" folder, and the program will prompt the user to pick which word bank to use every round. 
-
-Example of how the txt should be formatted:
-
-![image](https://user-images.githubusercontent.com/61149391/122638045-5af58600-d124-11eb-9c21-1c2b1850ae11.png)
